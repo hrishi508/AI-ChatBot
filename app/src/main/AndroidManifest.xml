@@ -13,6 +13,9 @@
         android:theme="@style/Theme.AIChatBot"
         tools:targetApi="31">
         <activity
+            android:name=".chatscreen"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">
