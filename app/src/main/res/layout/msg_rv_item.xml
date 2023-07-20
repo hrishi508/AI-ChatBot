@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
         android:padding="5dp"
-        android:text="Message"
+        android:text="@string/message"
         android:textColor="@color/black" />
 
 </androidx.cardview.widget.CardView>

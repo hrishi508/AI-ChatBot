@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChatScreen">
+    tools:context=".ChatScreen"
+    android:padding="20dp">
 
     <!--recycler view for displaying our chat messages-->
     <androidx.recyclerview.widget.RecyclerView
@@ -17,7 +18,7 @@
         tools:listitem="@layout/msg_rv_item"
         />
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/idLLmessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,23 +29,28 @@
         <!--edit text for entering user message-->
         <EditText
             android:id="@+id/idEdtUserMsg"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/idBtnFAB"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:layout_weight="4.5" />
+            android:layout_weight="4.5"
+            android:hint="Type Your Message Here"/>
 
         <!--fab for sending message-->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/idBtnFAB"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="0.5"
-
+            android:src="@drawable/baseline_send_24"
+            android:backgroundTint="@color/purple_200"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:fabSize="mini"
             app:tint="@color/white" />
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </RelativeLayout>
-    <!--            android:src="@drawable/ic_baseline_send_24"-->
-    <!--            app:backgroundTint="@color/purple_200"-->
