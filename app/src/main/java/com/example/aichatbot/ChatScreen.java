@@ -21,6 +21,8 @@ import com.google.mlkit.nl.smartreply.TextMessage;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.mlkit.nl.languageid.*;
 public class ChatScreen extends AppCompatActivity {
 
     // on below line we are creating
@@ -94,6 +96,7 @@ public class ChatScreen extends AppCompatActivity {
         // on below line we are adding
         // our message to our message list.
         messageList.add(message);
+//        String s=message.getMessageText();
 
         // on below line we are adding our edit text field
         // value to our array list and setting type as 0.
@@ -108,6 +111,7 @@ public class ChatScreen extends AppCompatActivity {
         // on below line we are creating a variable for our Firebase
         // smart reply and getting instance of it.
         SmartReplyGenerator smartReply = SmartReply.getClient();
+//
         smartReply.suggestReplies(messageList)
                 .addOnSuccessListener(new OnSuccessListener<SmartReplySuggestionResult>() {
                     @Override
@@ -115,9 +119,13 @@ public class ChatScreen extends AppCompatActivity {
                         if (result.getStatus() == SmartReplySuggestionResult.STATUS_NOT_SUPPORTED_LANGUAGE) {
                             // The conversation's language isn't supported, so
                             // the result doesn't contain any suggestions.
+                            Toast.makeText(ChatScreen.this,"invalid",Toast.LENGTH_LONG).show();
                         } else if (result.getStatus() == SmartReplySuggestionResult.STATUS_SUCCESS) {
+//                            Toast.makeText(ChatScreen.this,"valid",Toast.LENGTH_LONG).show();
                             // Task completed successfully
                             // ...
+                            chatMsgModalArrayList.add(new ChatMsgModal(result.getSuggestions().get(0).getText(), 1));
+                            adapter.notifyDataSetChanged();
                         }
                     }
                 })
@@ -135,3 +143,28 @@ public class ChatScreen extends AppCompatActivity {
 
     }
 }
+//    LanguageIdentifier languageIdentifier =
+//                LanguageIdentification.getClient();
+//        languageIdentifier.identifyLanguage(message.getMessageText())
+//                .addOnSuccessListener(
+//                        new OnSuccessListener<String>() {
+//                            @Override
+//                            public void onSuccess( String message) {
+//                                String s=message.toString();
+//                                if (s.equals("und")) {
+//                                    Toast.makeText(ChatScreen.this,"invallie",Toast.LENGTH_LONG).show();
+//                                } else {
+//
+//                                    Toast.makeText(ChatScreen.this,s,Toast.LENGTH_LONG).show();
+////                                    Log.i(TAG, "Language: " + languageCode);
+//                                }
+//                            }
+//                        })
+//                .addOnFailureListener(
+//                        new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//                                // Model couldn’t be loaded or other internal error.
+//                                // ...
+//                            }
+//                        });
