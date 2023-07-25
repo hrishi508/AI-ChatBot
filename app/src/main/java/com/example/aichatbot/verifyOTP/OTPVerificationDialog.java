@@ -52,56 +52,11 @@ public class OTPVerificationDialog extends Dialog {
         setupClickListeners();
     }
 
-    private void setUIcontainers() {
-        TextView emailView = findViewById(R.id.textview_email);
-
-        otpET1 = findViewById(R.id.otpET1);
-        otpET2 = findViewById(R.id.otpET2);
-        otpET3 = findViewById(R.id.otpET3);
-        otpET4 = findViewById(R.id.otpET4);
-
-        resendBtn = findViewById(R.id.button_resend);
-        verifyOTPBTn = findViewById(R.id.button_verifyOTP);
-
-        otpET1.addTextChangedListener(textWatcher);
-        otpET2.addTextChangedListener(textWatcher);
-        otpET3.addTextChangedListener(textWatcher);
-        otpET4.addTextChangedListener(textWatcher);
-
-        showKeyboard(otpET1);
-        emailView.setText(receiverEmail);
-    }
-
-    private void showKeyboard(EditText otpET) {
-        otpET.requestFocus();
-        InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.showSoftInput(otpET, InputMethodManager.SHOW_IMPLICIT);
-    }
-
-    private void startCountDownTimer() {
-        new CountDownTimer(resendTime * 1000, 1000) {
-
-            @Override
-            public void onTick(long l) {
-                resendBtn.setText("Resend Code (" + (l/1000) + ")");
-            }
-
-            @Override
-            public void onFinish() {
-                resendEnabled = true;
-                resendBtn.setText("Resend Code");
-                resendBtn.setTextColor(getContext().getResources().getColor(android.R.color.holo_blue_dark));
-
-            }
-        }.start();
-    }
-
     private void setupClickListeners() {
         resendBtn.setOnClickListener(view -> {
             if (resendEnabled) {
                 startCountDownTimer();
-                sentOTP = MainActivity.Companion.generateOTP();
-                MainActivity.Companion.sendOTP(sentOTP, receiverEmail);
+                sentOTP = MainActivity.Companion.sendOTP(receiverEmail);
             }
         });
 
@@ -124,8 +79,24 @@ public class OTPVerificationDialog extends Dialog {
         });
     }
 
-    public void setDialogResult(OnMyDialogResult dialogResult){
-        mDialogResult = dialogResult;
+    private void setUIcontainers() {
+        TextView emailView = findViewById(R.id.textview_email);
+
+        otpET1 = findViewById(R.id.otpET1);
+        otpET2 = findViewById(R.id.otpET2);
+        otpET3 = findViewById(R.id.otpET3);
+        otpET4 = findViewById(R.id.otpET4);
+
+        resendBtn = findViewById(R.id.button_resend);
+        verifyOTPBTn = findViewById(R.id.button_verifyOTP);
+
+        otpET1.addTextChangedListener(textWatcher);
+        otpET2.addTextChangedListener(textWatcher);
+        otpET3.addTextChangedListener(textWatcher);
+        otpET4.addTextChangedListener(textWatcher);
+
+        showKeyboard(otpET1);
+        emailView.setText(receiverEmail);
     }
 
     private final TextWatcher textWatcher = new TextWatcher() {
@@ -167,6 +138,30 @@ public class OTPVerificationDialog extends Dialog {
         }
     };
 
+    private void showKeyboard(EditText otpET) {
+        otpET.requestFocus();
+        InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.showSoftInput(otpET, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    private void startCountDownTimer() {
+        new CountDownTimer(resendTime * 1000, 1000) {
+
+            @Override
+            public void onTick(long l) {
+                resendBtn.setText("Resend Code (" + (l/1000) + ")");
+            }
+
+            @Override
+            public void onFinish() {
+                resendEnabled = true;
+                resendBtn.setText("Resend Code");
+                resendBtn.setTextColor(getContext().getResources().getColor(android.R.color.holo_blue_dark));
+
+            }
+        }.start();
+    }
+
     @Override
     public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_DEL) {
@@ -193,6 +188,10 @@ public class OTPVerificationDialog extends Dialog {
         else {
             return super.onKeyUp(keyCode, event);
         }
+    }
+
+    public void setDialogResult(OnMyDialogResult dialogResult){
+        mDialogResult = dialogResult;
     }
 
     public interface OnMyDialogResult{
