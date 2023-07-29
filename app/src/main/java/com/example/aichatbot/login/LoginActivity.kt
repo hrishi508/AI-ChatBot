@@ -59,6 +59,17 @@ class LoginActivity() : AppCompatActivity() {
                     binding.textinputEmail.error = null
                     var loginAttempts =
                         snapshot.child(username).child("loginAttempts").getValue(Int::class.java)
+
+                    if (loginAttempts != null && loginAttempts > 2) {
+                        Toast.makeText(
+                            this@LoginActivity,
+                            "Account locked! Please try later",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        onBackPressed()
+                        return
+                    }
+
                     loginAttempts = loginAttempts?.plus(1)
                     snapshot.ref.child(username).child("loginAttempts").setValue(loginAttempts)
 
@@ -80,23 +91,7 @@ class LoginActivity() : AppCompatActivity() {
                         binding.textinputPassword.error = "Incorrect Password"
                         binding.editTextPassword.text = null
                         binding.editTextPassword.requestFocus()
-
-                        if (loginAttempts != null) {
-                            if (loginAttempts > 2) {
-                                Toast.makeText(
-                                    this@LoginActivity,
-                                    "3 failed login attempts! Please try later",
-                                    Toast.LENGTH_LONG
-                                ).show()
-
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    loginAttempts = 0
-                                    resetLoginAttempts(snapshot)
-                                }, 300000)
-
-                                onBackPressed()
-                            }
-                        }
+                        checkLoginAttempts(loginAttempts, snapshot)
                     }
 
 
@@ -110,6 +105,27 @@ class LoginActivity() : AppCompatActivity() {
                 TODO("Not yet implemented")
             }
         })
+    }
+
+    private fun checkLoginAttempts(
+        loginAttempts: Int?,
+        snapshot: DataSnapshot
+    ) {
+        if (loginAttempts != null) {
+            if (loginAttempts > 2) {
+                Toast.makeText(
+                    this@LoginActivity,
+                    "Multiple failed login attempts! Please try later",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                Handler(Looper.getMainLooper()).postDelayed({
+                    resetLoginAttempts(snapshot)
+                }, 10000)
+
+                onBackPressed()
+            }
+        }
     }
 
     private fun clearFormFields() {
