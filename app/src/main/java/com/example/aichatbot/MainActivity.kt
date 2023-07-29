@@ -1,11 +1,14 @@
 package com.example.aichatbot
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import com.example.aichatbot.databinding.ActivityMainBinding
+import com.example.aichatbot.login.LoginActivity
 import com.example.aichatbot.verifyOTP.OTPVerificationDialog
+import com.google.firebase.database.FirebaseDatabase
 import javax.mail.Authenticator
 import javax.mail.Message
 import javax.mail.MessagingException
@@ -30,33 +33,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         binding.buttonRegister.setOnClickListener {
-            val result = authUsingOTP()
-            if (result) register()
+            authUsingOTP()
         }
-
-        binding.buttonSignIn.setOnClickListener {
-            if (signIn()) {
-                // Create Intent to move to next activity
-            } else {
-                Toast.makeText(
-                    this,
-                    "Invalid credentials! Please try again.",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
+        binding.buttonSignIn.setOnClickListener { startSignInActivity(null) }
     }
 
-    private fun authUsingOTP(): Boolean {
-        val sentOTP = sendOTP(binding.editTextEmail.text.toString())
-        return showOTPDialog(sentOTP)
+    private fun authUsingOTP() {
+        val otp = generateOTP()
+        showOTPDialog(otp)
+        sendOTP(otp, binding.editTextEmail.text.toString())
     }
 
     companion object {
-        fun sendOTP(receiverEmail: String): String {
-            while (true) {
+        fun sendOTP(otp: String, receiverEmail: String) {
+            val NANOSEC_PER_SEC: Long = 1000*1000*1000
+            val startTime = System.nanoTime()
+
+            while ((System.nanoTime()-startTime) < 1*60*NANOSEC_PER_SEC) {
                 try {
-                    val otp = generateOTP()
                     val senderEmail = "k.gunjan2010@gmail.com"
                     val senderPass = "zwmrrsyklwhrksja"
 
@@ -92,15 +86,15 @@ class MainActivity : AppCompatActivity() {
                     """.trimIndent()
                     )
 
-                    val thread = Thread(Runnable {
+                    val thread = Thread {
                         try {
                             Transport.send(mimeMessage)
                         } catch (e: MessagingException) {
                             e.printStackTrace()
                         }
-                    })
+                    }
                     thread.start()
-                    return otp
+                    return
                 } catch (e: AddressException) {
                     e.printStackTrace()
                 } catch (e: MessagingException) {
@@ -109,36 +103,67 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        private fun generateOTP(): String {
+        fun generateOTP(): String {
             val randomPin = (Math.random() * 9000).toInt() + 1000
             return randomPin.toString()
         }
     }
 
-    private fun showOTPDialog(sentOTP: String): Boolean {
-        var result = false
+    private fun showOTPDialog(sentOTP: String) {
         val otpVerificationDialog =
             OTPVerificationDialog(
                 this,
                 binding.editTextEmail.text.toString(),
                 sentOTP
             )
+
+        otpVerificationDialog.setDialogResult {
+            if (it) {
+                register()
+                startSignInActivity(binding.editTextEmail.text.toString())
+                clearFormFields()
+            }
+        }
         otpVerificationDialog.setCancelable(false)
         otpVerificationDialog.show()
-        otpVerificationDialog.setDialogResult { result = it }
-        return result
     }
 
     private fun register() {
+        val user = User(
+            binding.editTextName.text.toString(),
+            binding.editTextEmail.text.toString(),
+            binding.editTextPassword.text.toString(),
+            0
+        )
+        val username = binding.editTextEmail.text.toString().substringBefore("@").replace(".", "")
+        val database =
+            FirebaseDatabase.getInstance("https://ai-chatbot-648d7-default-rtdb.asia-southeast1.firebasedatabase.app")
+        val myRef = database.getReference("users")
+
+        myRef.child(username).setValue(user)
+        myRef.child(username).child("username").setValue(username)
+
         Toast.makeText(
             this,
-            "Registration Successful! Please sign in to continue.",
+            "Registration Successful!",
             Toast.LENGTH_LONG
         ).show()
     }
 
-    private fun signIn(): Boolean {
-        return true
+    private fun startSignInActivity(email: String?) {
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.putExtra("email", email)
+        startActivity(intent)
+    }
+
+    private fun clearFormFields() {
+        binding.editTextName.text = null
+        binding.editTextEmail.text = null
+        binding.editTextPassword.text = null
+
+        binding.editTextName.clearFocus()
+        binding.editTextEmail.clearFocus()
+        binding.editTextPassword.clearFocus()
     }
 
     private fun setupRegistrationFormValidators() {
