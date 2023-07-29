@@ -1,4 +1,4 @@
-package com.example.aichatbot;
+package com.example.aichatbot.chat;
 
 public class ChatMsgModal {
     // variable for our string and int for a type of message.
